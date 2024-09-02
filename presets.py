@@ -28,24 +28,36 @@ def preset_one_vs_one(num_creatures, screen):
             creature.change_type(random_type_a)
         else:
             creature.change_type(random_type_b)
-        # if creature.x < width / 3:
-        #     creature.change_type("E")
-        # elif creature.x > width * 2/3:
-        #     creature.change_type("D")
         creatures.append(creature)
     return creatures
 
-def preset_hurdles(num_hurdles, hurdle_size, screen):
+def preset_hurdles(screen, num_hurdles=8, hurdle_size=60):
     size = STARTING_SIZE
     creatures = []
-    
-    for _ in range(num_hurdles):
+    remaining_types = list(PALLETTE.keys())
+
+    def distribute_points_evenly():
+        points = []
+        # Calculate horizontal and vertical spacing
+        horizontal_spacing = screen.get_width() // (num_hurdles / 2)
+        vertical_spacing = screen.get_height() // 2
+        # Generate 6 points
+        for i in range(num_hurdles // 2):
+            for j in range(2):
+                x = (i + 0.5) * horizontal_spacing
+                y = (j + 0.5) * vertical_spacing
+                points.append((int(x), int(y)))
+        return points
+    points = distribute_points_evenly()
+
+    for i in range(num_hurdles):
         # Select a random point on the screen
-        point_x = random.randint(size, screen.get_width() - size)
-        point_y = random.randint(size, screen.get_height() - size)
+        point_x = points[i][0]
+        point_y = points[i][1]
         
         # Select a random type for this group of creatures
-        group_type = random.choice(list(PALLETTE.keys()))
+        group_type = random.choice(remaining_types)
+        remaining_types.remove(group_type)
         
         # Create m creatures nearby the selected point with the same type
         for _ in range(hurdle_size):

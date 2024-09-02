@@ -1,14 +1,23 @@
-import math
-import random
 import pygame
 import sys
 
 from creature import Creature, check_collision, handle_collision
 from presets import *
 from splash import Splash
+from color import *
+
+CREATURES_PER_EGG = 10
+HATCH_SIZE = 10
 
 # Initialize Pygame mixer
 pygame.mixer.init()
+
+# Initialize Pygame
+pygame.init()
+
+# Get the display info
+info = pygame.display.Info()
+width, height = info.current_w, info.current_h
 
 # Load sound effect
 soundfxs = {
@@ -19,31 +28,24 @@ soundfxs = {
 }
 soundfxs["pop"].set_volume(0.8)
 
-NUM_CREATURES = 200
-BACKGROUND_COLOR = (110, 100, 50)
-CREATURES_PER_EGG = 10
-HATCH_SIZE = 10
-
-# Initialize Pygame
-pygame.init()
-
-# Get the display info
-info = pygame.display.Info()
-width, height = info.current_w, info.current_h
+# Load the texture
+bg_texture = pygame.image.load('texture/always-grey.png')
 
 # Create a fullscreen window
 screen = pygame.display.set_mode((width, height), pygame.FULLSCREEN)
 
+# Background
+background = pygame.Surface((width, height))
+background.fill(BACKGROUND_COLOR)
+tile_texture(background, bg_texture)
+
 # Create a canvas buffer
-buffer = pygame.Surface((width, height))
-buffer.fill(BACKGROUND_COLOR)  # Fill the buffer with a gray background
+buffer = pygame.Surface((width, height), pygame.SRCALPHA)
 
 # Create a clock object to manage frame rate
 clock = pygame.time.Clock()
 
-creatures = preset_random(num_creatures=NUM_CREATURES, screen=screen)
-# creatures = preset_one_vs_one(num_creatures=NUM_CREATURES, screen=screen)
-creatures = preset_hurdles(4, 60, screen)
+creatures = preset_hurdles(screen, 10, 25)
 eggs = []
 splashes = []
 
@@ -52,7 +54,7 @@ def system_update():
     for i, creature in enumerate(creatures):
         creature.think_and_crawl()
         creature.update()
-        creature.wipe(buffer=buffer, color=BACKGROUND_COLOR)
+        creature.wipe(buffer=buffer, color=(0,0, 0, 0))
         # Check for collisions with other creatures
         for j in range(i + 1, len(creatures)):
             if check_collision(creature, creatures[j]):
@@ -107,11 +109,20 @@ while True:
 
     system_update()
 
-    # Fill the background with white
+    # Fill the background
+    screen.blit(background, (0, 0))  # Draw the buffer onto the screen
     screen.blit(buffer, (0, 0))  # Draw the buffer onto the screen
 
-    # Get mouse position
-    mouse_x, mouse_y = pygame.mouse.get_pos()
+    # Handle mouse click
+    if event.type == pygame.MOUSEBUTTONDOWN:
+        if event.button == 1:  # Left mouse button
+            mouse_x, mouse_y = event.pos
+            for creature in creatures:
+                creature.selected |= creature.is_clicked(mouse_x, mouse_y)
+        if event.button == 3:  # Left mouse button
+            mouse_x, mouse_y = event.pos
+            for creature in creatures:
+                creature.selected = False
 
     # Display
     for splash in splashes:
@@ -120,11 +131,12 @@ while True:
         egg.display()
     for creature in creatures:
         creature.display()
+    for creature in creatures:
+        if creature.selected: creature.draw_info_above()
 
     # Update the display
     pygame.display.flip()
     # Limit the frame rate to 60 FPS
     dt = clock.tick(100) / 1000  # Time in seconds since the last frame
-    # Calculate and print FPS
     fps = clock.get_fps()
-    # print(f"FPS: {fps:.2f}")
+    print(f"FPS: {fps:.2f}")

@@ -3,12 +3,12 @@ import random
 import math
 
 from egg import Egg
-from pallette import PALLETTE
+from color import PALLETTE
 
 CREATURE_FRICTION = 0.99
 CREATURE_IMPULSE = 1
 CREATURE_CRAWL_PROB = 0.005
-CREATURE_LAY_EGGS_PROB = 0.001
+CREATURE_LAY_EGGS_PROB = 0.002
 CREATURE_LAY_EGGS_SIZE = 20
 
 class Creature:
@@ -24,10 +24,11 @@ class Creature:
         self.color = PALLETTE[self.type]
         self.length = 10
         self.history = []
-        self.impuse = CREATURE_IMPULSE
+        self.impulse = CREATURE_IMPULSE
         self.dead = False
         self.level = 1
         self.egg_laid = None
+        self.selected = False
 
     def change_type(self, type):
         self.type = type
@@ -38,7 +39,7 @@ class Creature:
 
     def upgrade(self):
         self.level = max(10, self.level + 1)
-        self.impuse = (self.level / 10) * 3 * CREATURE_IMPULSE
+        self.impulse = (self.level / 10) * 3 * CREATURE_IMPULSE
         self.size += 1
 
     def crawl(self, dx, dy):
@@ -49,7 +50,7 @@ class Creature:
         self.vy += dy
 
     def random_crawl(self):
-        distance = self.impuse # Fixed distance
+        distance = self.impulse # Fixed distance
         angle = random.uniform(0, 2 * math.pi)  # Random angle in radians
         dx = distance * math.cos(angle)
         dy = distance * math.sin(angle)
@@ -105,8 +106,51 @@ class Creature:
             if i == len(self.history) - 1:
                 pygame.draw.circle(buffer, self.color, (x, y), self.size)
 
+    def draw_info_above(self):
+        info_size = 5
+
+        # Define the triangle's size and color
+        triangle_size = info_size
+        triangle_color = (0, 0, 255)  # Red color for the triangle
+        
+        # Calculate the points of the triangle
+        point1 = (self.x, self.y - self.size - triangle_size)
+        point2 = (self.x - triangle_size, self.y - self.size - triangle_size * 2)
+        point3 = (self.x + triangle_size, self.y - self.size - triangle_size * 2)
+        
+        # Draw the triangle
+        pygame.draw.polygon(self.screen, triangle_color, [point1, point2, point3])
+
+        # Define the rectangle's size and color
+        rect_width = 120
+        rect_height = 50
+        rect_color = (0, 0, 255)  # Blue color for the rectangle
+        text_color = (255, 255, 255)  # White color for the text
+        
+        # Calculate the position for the rectangle
+        rect_x = self.x - rect_width // 2
+        rect_y = self.y - self.size - rect_height - 10  # Adjust position above the creature
+        
+        # Draw the rectangle
+        pygame.draw.rect(self.screen, rect_color, pygame.Rect(rect_x, rect_y, rect_width, rect_height))
+        
+        # Prepare and render the text
+        font = pygame.font.SysFont(None, 24)
+        size_text = font.render(f"Size: {self.size}", True, text_color)
+        impulse_text = font.render(f"Impulse: {round(self.impulse, 2)}", True, text_color)
+        
+        # Draw the text onto the screen
+        self.screen.blit(size_text, (rect_x + 10, rect_y + 10))
+        self.screen.blit(impulse_text, (rect_x + 10, rect_y + 30))
+
     def wipe(self, buffer, color):
         pygame.draw.circle(buffer, color, (self.x, self.y), self.size)
+
+    def is_clicked(self, mouse_x, mouse_y):
+        # Calculate the distance from the mouse click to the creature's center
+        distance = ((self.x - mouse_x) ** 2 + (self.y - mouse_y) ** 2) ** 0.5
+        # If the distance is less than the radius of the creature, it's considered clicked
+        return distance <= self.size
 
     def get_position(self):
         """Return the position as a tuple."""
@@ -127,8 +171,10 @@ def check_collision(creature1, creature2):
     """Check if two creatures collide."""
     dx = creature1.x - creature2.x
     dy = creature1.y - creature2.y
-    distance = math.sqrt(dx ** 2 + dy ** 2)
     combined_radius = (creature1.size + creature2.size)
+    if abs(dx) > combined_radius or abs(dy) > combined_radius:
+        return False
+    distance = math.sqrt(dx ** 2 + dy ** 2)
     return distance < combined_radius
 
 def handle_collision(creature1, creature2):
@@ -137,6 +183,7 @@ def handle_collision(creature1, creature2):
         return
     if creature1.type == creature2.type:
         # Change velocity if types are the same
+        pass
         factor = 1
         creature1.vx *= factor
         creature1.vy *= factor

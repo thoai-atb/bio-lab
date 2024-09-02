@@ -1,5 +1,5 @@
 import pygame
-from pallette import PALLETTE
+from color import PALLETTE
 
 class Egg:
     def __init__(self, x, y, type, screen):

@@ -1,3 +1,38 @@
+BACKGROUND_COLOR = (50, 80, 80)
+
+PALLETTE = {
+    "A": (255, 0, 0),        # Red
+    "B": (255, 165, 0),      # Orange
+    "C": (255, 255, 0),      # Yellow
+    "D": (0, 255, 0),        # Lime
+    "E": (0, 255, 255),      # Cyan
+    "F": (0, 0, 255),        # Blue
+    "H": (255, 255, 255),    # White
+    "J": (255, 0, 203),      # Magenta
+    "K": (0, 10, 10),          # Black
+    "L": (120, 100, 80)      # Brown
+}
+
+def tile_texture(screen, texture):
+    """
+    Tile the given texture across the screen while maintaining the original size.
+
+    Args:
+        screen (pygame.Surface): The surface on which to draw the tiled texture.
+        texture (pygame.Surface): The texture to tile across the screen.
+    """
+    # Get the dimensions of the screen
+    screen_width, screen_height = screen.get_size()
+
+    # Get the dimensions of the texture
+    texture_width = texture.get_width()
+    texture_height = texture.get_height()
+
+    # Tile the texture across the screen
+    for x in range(0, screen_width, texture_width):
+        for y in range(0, screen_height, texture_height):
+            screen.blit(texture, (x, y))
+
 def darken_color(color, factor=0.5):
     """
     Darken the input color by reducing its brightness.
