@@ -28,7 +28,6 @@ class Creature:
         self.dead = False
         self.level = 1
         self.egg_laid = None
-        self.selected = False
 
     def change_type(self, type):
         self.type = type
@@ -146,7 +145,7 @@ class Creature:
     def wipe(self, buffer, color):
         pygame.draw.circle(buffer, color, (self.x, self.y), self.size)
 
-    def is_clicked(self, mouse_x, mouse_y):
+    def contains(self, mouse_x, mouse_y):
         # Calculate the distance from the mouse click to the creature's center
         distance = ((self.x - mouse_x) ** 2 + (self.y - mouse_y) ** 2) ** 0.5
         # If the distance is less than the radius of the creature, it's considered clicked

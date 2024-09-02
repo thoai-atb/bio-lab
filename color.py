@@ -1,4 +1,7 @@
-BACKGROUND_COLOR = (50, 80, 80)
+import random
+
+
+BACKGROUND_COLOR = (80, 80, 50)
 
 PALLETTE = {
     "A": (255, 0, 0),        # Red
@@ -9,9 +12,12 @@ PALLETTE = {
     "F": (0, 0, 255),        # Blue
     "H": (255, 255, 255),    # White
     "J": (255, 0, 203),      # Magenta
-    "K": (0, 10, 10),          # Black
+    "K": (0, 10, 10),        # Black
     "L": (120, 100, 80)      # Brown
 }
+
+def random_type():
+    return random.choice(list(PALLETTE.keys()))
 
 def tile_texture(screen, texture):
     """

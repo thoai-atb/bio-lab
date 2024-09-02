@@ -31,7 +31,7 @@ def preset_one_vs_one(num_creatures, screen):
         creatures.append(creature)
     return creatures
 
-def preset_hurdles(screen, num_hurdles=8, hurdle_size=60):
+def preset_herds(screen, num_herds=8, herd_size=60):
     size = STARTING_SIZE
     creatures = []
     remaining_types = list(PALLETTE.keys())
@@ -39,10 +39,10 @@ def preset_hurdles(screen, num_hurdles=8, hurdle_size=60):
     def distribute_points_evenly():
         points = []
         # Calculate horizontal and vertical spacing
-        horizontal_spacing = screen.get_width() // (num_hurdles / 2)
+        horizontal_spacing = screen.get_width() // (num_herds / 2)
         vertical_spacing = screen.get_height() // 2
         # Generate 6 points
-        for i in range(num_hurdles // 2):
+        for i in range(num_herds // 2):
             for j in range(2):
                 x = (i + 0.5) * horizontal_spacing
                 y = (j + 0.5) * vertical_spacing
@@ -50,7 +50,7 @@ def preset_hurdles(screen, num_hurdles=8, hurdle_size=60):
         return points
     points = distribute_points_evenly()
 
-    for i in range(num_hurdles):
+    for i in range(num_herds):
         # Select a random point on the screen
         point_x = points[i][0]
         point_y = points[i][1]
@@ -60,7 +60,7 @@ def preset_hurdles(screen, num_hurdles=8, hurdle_size=60):
         remaining_types.remove(group_type)
         
         # Create m creatures nearby the selected point with the same type
-        for _ in range(hurdle_size):
+        for _ in range(herd_size):
             # Generate a random angle and distance within a small radius
             radius = 100  # Define the radius within which creatures are placed
             angle = random.uniform(0, 2 * math.pi)
